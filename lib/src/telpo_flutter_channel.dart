@@ -1,16 +1,20 @@
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:telpo_flutter_sdk/src/models/telpo_printer_configuration.dart';
 import 'package:telpo_flutter_sdk/telpo_flutter_sdk.dart';
 
 class TelpoFlutterChannel {
+  TelpoFlutterChannel._() {
+    _platform = MethodChannel(_channelName);
+  }
+
+  static TelpoFlutterChannel get instance => TelpoFlutterChannel._();
+
   late MethodChannel _platform;
 
   final String _channelName = 'me.aljan.telpo_flutter_sdk/telpo';
-
-  TelpoFlutterChannel() {
-    _platform = MethodChannel(_channelName);
-  }
 
   /// Returns an [Enum] of type [TelpoStatus] indicating current status of
   /// underlying Telpo Device.
@@ -66,7 +70,7 @@ class TelpoFlutterChannel {
   }
 
   /// Returns a nullable [bool] whether or not connected with Telpo device.
-  Future<bool?> isConnected() async {
+  Future<bool> isConnected() async {
     try {
       final isConnected = await _platform.invokeMethod('isConnected');
 
@@ -84,13 +88,39 @@ class TelpoFlutterChannel {
   /// If [PrintResult.success] the data printed successfully, if else process
   /// blocked by some exception. See the result enum for more info.
   Future<PrintResult> print(TelpoPrintSheet data) async {
+    return await _handlePrint(
+      () async {
+        await _platform.invokeMethod(
+          'print',
+          {
+            "data": data.asJson,
+          },
+        );
+      },
+    );
+  }
+
+  /// Takes [List<PrintData>] to be printed and returns [PrintResult] enum as
+  /// an indicator for result of the process
+  ///
+  /// If [PrintResult.success] the data printed successfully, if else process
+  /// blocked by some exception. See the result enum for more info.
+  Future<PrintResult> printWithJson(List<Map<String, dynamic>?> json) async {
+    return await _handlePrint(
+      () async {
+        await _platform.invokeMethod(
+          'print',
+          {
+            "data": json,
+          },
+        );
+      },
+    );
+  }
+
+  Future<PrintResult> _handlePrint(AsyncCallback printCallback) async {
     try {
-      await _platform.invokeMethod(
-        'print',
-        {
-          "data": data.asJson,
-        },
-      );
+      await printCallback();
 
       return PrintResult.success;
     } on PlatformException catch (e) {
@@ -108,6 +138,26 @@ class TelpoFlutterChannel {
 
           return PrintResult.other;
       }
+    }
+  }
+
+  /// [TelpoPrinterConfiguration] configuration
+  ///
+  ///
+  Future<bool> configurePrinter(Map<String, dynamic> configuration) async {
+    try {
+      final isSuccess = await _platform.invokeMethod(
+        'configurePrinter',
+        {
+          "data": configuration,
+        },
+      );
+
+      return isSuccess ?? false;
+    } catch (e) {
+      log('TELPO EXCEPTION: $e');
+
+      return false;
     }
   }
 }

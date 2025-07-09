@@ -90,6 +90,20 @@ class TelpoFlutterSdkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
                 telpoThermalPrinter.print(resultWrapper, printDataList, lowBattery)
             }
+            "configurePrinter" -> {
+                val configureData =
+                    call.argument<Map<String, Any>>("data") ?: emptyMap<String, Any>();
+
+                val fontFilePath = configureData["fontFilePath"].toString()
+
+                if(fontFilePath.isNullOrEmpty()) resultWrapper.success(false)
+                //val path = "/Internal storage/roboto.ttf"
+                val intent = Intent("android.intent.action.set.printer.mode")
+                intent.putExtra("printer_monoFont_path", fontFilePath) //monospace font
+                context.sendBroadcast(intent)
+
+                resultWrapper.success(true)
+            }
             else -> {
                 resultWrapper.notImplemented()
             }

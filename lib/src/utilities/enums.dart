@@ -13,8 +13,10 @@ enum PrintAlignment {
 /// [Enum] representing sizes of [PrintData.text] element.
 enum PrintedFontSize {
   size18,
+  size20,
   size24,
   size34,
+  size40,
   size44,
   size54,
   size64,

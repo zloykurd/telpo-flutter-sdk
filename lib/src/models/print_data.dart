@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:telpo_flutter_sdk/telpo_flutter_sdk.dart';
 
 /// [Enum] representing printable element type.
-enum _PrintDataType { byte, text, space }
+enum _PrintDataType { byte, text, space, escpos, qr }
 
 /// Plain Old Dart Object representing printing data.
 ///
@@ -14,6 +14,7 @@ class PrintData {
   final double? _height;
   final PrintAlignment? _alignment;
   final PrintedFontSize? _fontSize;
+  final bool? _isBold;
 
   final _PrintDataType _type;
 
@@ -25,6 +26,7 @@ class PrintData {
     this._height,
     this._alignment,
     this._fontSize,
+    this._isBold,
   ]);
 
   /// PrintData from text. Optional alignment (PrintAlignment) and fontSize
@@ -33,6 +35,7 @@ class PrintData {
     String text, {
     PrintAlignment? alignment,
     PrintedFontSize? fontSize,
+    bool isBold = false,
   }) {
     return PrintData._(
       _PrintDataType.text,
@@ -41,6 +44,23 @@ class PrintData {
       null,
       alignment,
       fontSize,
+      isBold,
+    );
+  }
+
+  factory PrintData.qr(
+    String text, {
+    PrintAlignment? alignment,
+    double? width,
+  }) {
+    return PrintData._(
+      _PrintDataType.qr,
+      text,
+      width,
+      width,
+      alignment,
+      null,
+      null,
     );
   }
 
@@ -68,6 +88,21 @@ class PrintData {
       height,
       alignment,
       fontSize,
+      null,
+    );
+  }
+
+  factory PrintData.escpos({
+    required List<Uint8List?> bytesList,
+  }) {
+    return PrintData._(
+      _PrintDataType.escpos,
+      bytesList,
+      null,
+      null,
+      null,
+      null,
+      null,
     );
   }
 
@@ -80,6 +115,7 @@ class PrintData {
       "alignment": _alignment?.name,
       "type": _type.name,
       "fontSize": _fontSize?.name,
+      "isBold": _isBold,
     };
   }
 
@@ -90,8 +126,10 @@ class PrintData {
       data: $_data,
       width: $_width,
       height: $_height,
-      alignment: $_alignment
+      alignment: $_alignment,
       type: $_type,
-      fontSize: $_fontSize)''';
+      fontSize: $_fontSize,
+      isBold: $_isBold,
+      )''';
   }
 }

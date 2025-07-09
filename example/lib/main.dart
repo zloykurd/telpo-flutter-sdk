@@ -1,9 +1,13 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 
 import 'package:telpo_flutter_sdk/telpo_flutter_sdk.dart';
+import 'package:telpo_flutter_sdk_example/command.dart';
 
 const telpoColor = Color(0xff005AFF);
 
@@ -35,12 +39,17 @@ class _HomeScreenState extends State<HomeScreen> {
   String _telpoStatus = 'Not initialized';
   bool _isLoading = false;
 
-  final _telpoFlutterChannel = TelpoFlutterChannel();
+  final _telpoFlutterChannel = TelpoFlutterChannel.instance;
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> _connect() async {
     // Platform calls are catched on plugin-side. No need to use try-catch here,
     // as connect() method returns non-nullable boolean.
+    final isConnected = await _telpoFlutterChannel.isConnected();
+
+    if (isConnected == true) {
+      _telpoFlutterChannel.disconnect();
+    }
 
     final bool connected = await _telpoFlutterChannel.connect();
 
@@ -63,24 +72,96 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _printData() async {
     setState(() => _isLoading = true);
 
-    // Creating an [TelpoPrintSheet] instance.
     final sheet = TelpoPrintSheet();
 
-    // Creating a text element
-    final textData = PrintData.text(
-      'TelpoFlutterSdk',
-      alignment: PrintAlignment.center,
-      fontSize: PrintedFontSize.size34,
-    );
+    // print(initialize);
 
-    // Creating 8-line empty space element.
-    final spacing = PrintData.space(line: 8);
+    // final initializePart = Uint8List.fromList([
+    //   ...initialize,
+    //   ...cancelKanjiMode,
+    //   // ...selectPrintMode,
+    //   // ...setLineSpacing,
+    //   ...setCharacterCodeTable,
+    //   // ...setFontA,
+    // ]);
+    // log(initializePart.join(','));
 
-    // Inserting previously created text element to the sheet.
-    sheet.addElement(textData);
+    // sheet.addElement(
+    //   PrintData.escpos(
+    //     bytesList: [
+    //       Uint8List.fromList([
+    //         ...initialize,
+    //         ...cancelKanjiMode,
+    //         // ...selectPrintMode,
+    //         ...setLineSpacing,
+    //         ...setCharacterCodeTable,
+    //         // ...command,
+    //         // ...setFontA,
+    //       ])
+    //     ],
+    //   ),
+    // );
 
-    // Inserting previously created spacing element to the sheet.
-    sheet.addElement(spacing);
+    // log(Uint8List.fromList(command).join(','));
+
+    // sheet.addElement(
+    //   PrintData.escpos(
+    //     bytesList: [Uint8List.fromList(command2)],
+    //   ),
+    // );
+
+    sheet.addElements([
+      PrintData.text(
+        '  Посольство республики Конго   ',
+        fontSize: PrintedFontSize.size20,
+      ),
+      PrintData.text(
+        '  ЭРМЕК 2, 22222, 22222, 22222  ',
+        fontSize: PrintedFontSize.size20,
+      ),
+      PrintData.text(
+        'ИНН               32900000000000',
+        fontSize: PrintedFontSize.size20,
+      ),
+      PrintData.text(
+        'ЗНМ                    100000069',
+        fontSize: PrintedFontSize.size20,
+      ),
+      PrintData.text(
+        'РНМ             0000007722030345',
+        fontSize: PrintedFontSize.size20,
+      ),
+      PrintData.text(
+        'ФМ              0000000000006530',
+        fontSize: PrintedFontSize.size20,
+      ),
+      // PrintData.text(
+      //   'ИТОГ   121213.12',
+      //   fontSize: PrintedFontSize.size40,
+      //   isBold: true,
+      // ),
+      PrintData.text(
+        'Тестовый чек                    ',
+        fontSize: PrintedFontSize.size20,
+      ),
+      PrintData.text(
+        '--------------------------------',
+        fontSize: PrintedFontSize.size20,
+      ),
+      PrintData.text(
+        '      ПККМ NeoFiscal 3.0.0      ',
+        fontSize: PrintedFontSize.size20,
+      ),
+      PrintData.qr(
+        'Qr code example',
+        alignment: PrintAlignment.center,
+        width: 300,
+      ),
+      // PrintData.escpos(bytesList: [
+      //   Uint8List.fromList(qrCommand),
+      // ]),
+      PrintData.space(line: 8),
+    ]);
 
     final PrintResult result = await _telpoFlutterChannel.print(sheet);
 
@@ -150,7 +231,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   'Check status',
                 ),
               ),
-              if ([PrintResult.success.name, TelpoStatus.ok.name].contains(_telpoStatus)) ...[
+              if ([PrintResult.success.name, TelpoStatus.ok.name]
+                  .contains(_telpoStatus)) ...[
                 const SizedBox(height: 24.0),
                 CupertinoButton(
                   color: telpoColor,
