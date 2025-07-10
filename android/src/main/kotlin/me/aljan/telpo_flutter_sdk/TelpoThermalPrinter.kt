@@ -208,7 +208,6 @@ class TelpoThermalPrinter(activity: TelpoFlutterSdkPlugin) {
                             printQr(data)
                         }
 
-                        PrintType.QR -> {}
                         PrintType.PDF -> {}
                         PrintType.WalkPaper -> {
                             val step = data["data"].toString().toIntOrNull() ?: 2
