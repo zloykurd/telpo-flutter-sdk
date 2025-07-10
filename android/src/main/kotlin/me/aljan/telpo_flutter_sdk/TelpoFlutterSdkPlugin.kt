@@ -28,7 +28,6 @@ class TelpoFlutterSdkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var activity: Activity
     private lateinit var binding: FlutterPlugin.FlutterPluginBinding
     private lateinit var telpoThermalPrinter: TelpoThermalPrinter
-    public lateinit var registrar: PluginRegistry.Registrar
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, channelId)
