@@ -20,7 +20,6 @@ android {
     }
 
     defaultConfig {
-        applicationId "kg.zkdev.telpo_flutter_sdk"
         minSdkVersion 24
         targetSdkVersion 35
         versionCode = 1

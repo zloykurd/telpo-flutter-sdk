@@ -16,7 +16,6 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry
 
 /** TelpoFlutterSdkPlugin */
 class TelpoFlutterSdkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -37,16 +36,6 @@ class TelpoFlutterSdkPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         context = flutterPluginBinding.applicationContext
         telpoThermalPrinter = TelpoThermalPrinter(this@TelpoFlutterSdkPlugin)
         channel.setMethodCallHandler(this)
-    }
-
-    companion object {
-        @JvmStatic
-        fun registerWith(registrar: PluginRegistry.Registrar) {
-            val channel = MethodChannel(registrar.messenger(), TelpoFlutterSdkPlugin().channelId)
-            val plugin = TelpoFlutterSdkPlugin();
-            channel.setMethodCallHandler(plugin);
-            TelpoFlutterSdkPlugin().registrar = registrar;
-        }
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
